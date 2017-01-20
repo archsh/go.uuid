@@ -470,6 +470,23 @@ func NewV5(ns UUID, name string) UUID {
 	return u
 }
 
+// FromUint32
+func FromUint32(prefixes ...uint32) UUID {
+	var b []byte
+	for i:=0; i<4; i++ {
+		if len(prefixes)>i {
+			var bb []byte = []byte{0,0,0,0}
+			binary.BigEndian.PutUint32(bb, prefixes[i])
+			b = append(b, bb...)
+		}else{
+			var bb []byte = []byte{0,0,0,0}
+			safeRandom(bb)
+			b = append(b, bb...)
+		}
+	}
+	return FromBytesOrNil(b)
+}
+
 // Returns UUID based on hashing of namespace UUID and name.
 func newFromHash(h hash.Hash, ns UUID, name string) UUID {
 	u := UUID{}
