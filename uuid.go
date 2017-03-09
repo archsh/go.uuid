@@ -487,6 +487,23 @@ func FromUint32(prefixes ...uint32) UUID {
 	return FromBytesOrNil(b)
 }
 
+// FromUint16
+func FromUint16(prefixes ...uint16) UUID {
+	var b []byte
+	for i:=0; i<8; i++ {
+		if len(prefixes)>i {
+			var bb []byte = []byte{0,0}
+			binary.BigEndian.PutUint16(bb, prefixes[i])
+			b = append(b, bb...)
+		}else{
+			var bb []byte = []byte{0,0}
+			safeRandom(bb)
+			b = append(b, bb...)
+		}
+	}
+	return FromBytesOrNil(b)
+}
+
 // Returns UUID based on hashing of namespace UUID and name.
 func newFromHash(h hash.Hash, ns UUID, name string) UUID {
 	u := UUID{}
