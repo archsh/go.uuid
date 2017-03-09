@@ -504,6 +504,48 @@ func FromUint16(prefixes ...uint16) UUID {
 	return FromBytesOrNil(b)
 }
 
+// FromUintX
+func FromUintX(prefixes ...interface{}) UUID {
+	var b []byte
+	for _,p := range prefixes {
+		if v, ok := p.(uint8); ok {
+			if len(b) + 1 > 16 {
+				break
+			}
+			b = append(b, byte(v))
+		}else if v, ok := p.(uint16); ok {
+			if len(b) + 2 > 16 {
+				break
+			}
+			var bb []byte = []byte{0,0}
+			binary.BigEndian.PutUint16(bb, v)
+			b = append(b, bb...)
+		}else if v, ok := p.(uint32); ok {
+			if len(b) + 4 > 16 {
+				break
+			}
+			var bb []byte = []byte{0,0,0,0}
+			binary.BigEndian.PutUint32(bb, v)
+			b = append(b, bb...)
+		}else if v, ok := p.(uint64); ok {
+			if len(b) + 8 > 16 {
+				break
+			}
+			var bb []byte = []byte{0,0,0,0,0,0,0,0}
+			binary.BigEndian.PutUint64(bb, v)
+			b = append(b, bb...)
+		}else{
+			panic("Unsuported type.")
+		}
+	}
+	if len(b) < 16 {
+		bb := make([]byte, 16-len(b))
+		safeRandom(bb)
+		b = append(b, bb...)
+	}
+	return FromBytesOrNil(b)
+}
+
 // Returns UUID based on hashing of namespace UUID and name.
 func newFromHash(h hash.Hash, ns UUID, name string) UUID {
 	u := UUID{}
